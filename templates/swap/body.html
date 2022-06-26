@@ -1,0 +1,182 @@
+{% load static %}
+<div class="container" id="org-container">
+    <div class="row px-3">
+      <div id="mid-text"><p id="mid-text-node">SeaDoge Swap</p></div>
+        <div class="col col-md-6 offset-md-3 modal-switch" id="window">
+            <div class="row d-flex flex-row-reverse" id="top-box">
+                <div class="row justify-content-right" id="settings-div">
+                    <button class="float-right settings-btn" onclick="alert('soon! in v2');"><i class="bi bi-wrench"></i></button>
+                    <button onclick="show_error('Please set a password or fingerprint for each transaction on your wallet!');" class="float-right settings-btn"><i class="b bi-radioactive"></i></button>
+                    <button class="float-right settings-btn" onclick="show_settings()"><i class="bi bi-gear-fill"></i></button>
+                </div>
+                <h3 class="title-box float-left">Swap</h3>
+                <p class="float-left title-box text-muted"><small style="padding: 5px;"> Start trading with coins instantly!</small></p>
+            </div>
+            <div id="form">
+                <div class="swapbox">
+                  <div class="swapbox_select token_select" id="from_token_select">
+                    <img class="token_image" id="from_token_img">
+                    <span id="from_token_text">Select</span>
+                  </div>
+                  <smart style="display: none;" id="balance"></smart>
+                    <div class="swapbox_select">
+                        <input class="number form-control" placeholder="amount" id="from_amount" type="number">
+                        <button id="max_button" class="box_button">max</button>
+                        <button id="done_button" class="box_button">Done!</button>
+                    </div>
+                </div>
+                <div style="font-weight: 900; font-size: 20px; color: rgb(196, 196, 191); text-align: center;">
+                  <i class="bi bi-caret-down-fill"></i>
+                </div>
+                <div class="swapbox" >
+                    <div class="swapbox_select token_select"  id="to_token_select">
+                        <img class="token_image" id="to_token_img">
+                        <span id="to_token_text">Select</span>
+                    </div>
+                    <div class="swapbox_select">
+                        <input class="number form-control" placeholder="amount" id="to_amount" type="number">
+                    </div>
+                </div>
+                <button class="m-1" id="approve_button" style="display: none;">
+                    Approve First!
+                </button>
+                <button class="m-1" id="swap_button">
+                    Start Swapping!
+                </button>
+            </div>
+            <div id="div-gas">
+              <p id="estimated-Gas" style="display: none;"></p>
+            </div>
+            <!-- <div style="text-align: center; margin-top: 1%;">
+              <img onclick="show_error('Each month, three Son-Swap traders are given a Son Token lottery!');" width="200" src="{% static 'img/gifts.png' %}" alt="Gifts">
+            </div> -->
+        </div>
+    </div>
+</div>
+  <div id="container-3">
+    <img id="son-3d-logo" src="{% static 'img/rocket.png' %}" alt="Froggies Logo" width="300">
+    <div class="div-text-bottom">
+      <span>
+         <p class="bottom-text">SD SWAP ~ V1 <a href="https://t.me/P2P_JS">Support</a></p>
+         <p class="bottom-text">Copy Right - All rights reserved</p>
+      </span>
+  </div>
+<div class="modal" id="token_modal" tabindex="-1" role="dialog" style="z-index: 3;">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content modal-switch">
+        <div class="modal-header">
+          <h5 class="modal-title">Select token</h5>
+          <button class="modal_close" type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <i class="bi bi-x-octagon"></i>
+          </button>
+        </div>
+        <div class="modal-body">
+          <input id="search_input" placeholder="Search for coin names ..." type="text" onkeyup="search_coins()">
+          <div id="token_balance"></div>
+          <div id="token_list"></div>
+        </div>
+      </div>
+    </div>
+</div>
+<div class="modal" id="swap_modal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content modal-switch">
+        <div class="modal-header">
+          <h5 class="modal-title">Are You Sure?</h5>
+          <button class="modal_close" type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <i class="bi bi-x-octagon"></i>
+       </button>
+        </div>
+        <div class="modal-body" style="height: 580px !important;">
+          <div id="modal-body-l2">
+            <div id="trade_body">
+              <p id="UserAddress"></p>
+              <p id="FromToken"></p>
+              <p id="ToToken"></p>
+              <p id="amount"></p>
+              <p id="to-amount"></p>
+              <p id="estimatedGas"></p>
+              </div>
+              <div class="container" id="trade_information">
+                <div class="row align-items-center">
+                  <div class="col">
+                    <img id="FromTokenLogo" width="60">
+                  </div>
+                <div class="col" style="text-align: center;">
+                  to
+                </div>
+                <div class="col">
+                     <img  id="ToTokenLogo" width="60" style="float: right;">
+                    </div>
+                  </div>
+                </div>
+                <div class="col">
+                  <button id="accept_button">Accept!</button>
+                </div>
+              </div>
+            </div>
+          </div></div></div>
+   </div>
+<div class="modal" id="loading_modal" tabindex="-1" role="dialog" style="z-index: 2;">
+    <div class="modal-dialog" role="document" style="top: 5%;">
+      <div class="modal-content modal-switch">
+        <div class="modal-header">
+          <h5 class="modal-title">Connecting! - BSC</h5>
+        </div>
+        <div class="modal-body" style="height: 420px; overflow: hidden;">
+           <div style="text-align: center;">
+                <img src="{% static 'img/hand.png' %}" width="300" height="200" alt="loading" style="border-radius: 20px; margin-bottom: 30px;">
+                <img id="rocket-loading" src="{% static 'img/rocket.png' %}" alt="loading" style="border-radius: 20px;">
+                <p>Please wait a moment...</p>
+                <p>Maybe the some request comes to you!</p>
+                <!-- <div style="text-align: center; margin-top: 1%;">
+                  <img id="gifts-logo" src="{% static 'img/gifts.png' %}" alt="Gifts">
+                </div> -->
+           </div>
+        </div>
+      </div>
+    </div>
+</div>
+<div class="modal" id="result_modal" tabindex="-1" role="dialog" style="z-index: 3;">
+  <div class="modal-dialog" role="document" style="top: 5%;">
+    <div class="modal-content  modal-switch">
+      <div class="modal-header">
+        <h5 class="modal-title" id="error-title">Error! <i class="bi bi-emoji-dizzy"></i></h5>
+        <h5 class="modal-title" id="successful-title" style="display: none;">A message! <i class="bi bi-emoji-laughing"></i></h5>
+        <button class="modal_close" type="button" class="close" data-dismiss="modal" aria-label="Close">
+             <i class="bi bi-x-octagon"></i>
+        </button>
+      </div>
+      <div class="modal-body" style="height: 100px; overflow: hidden;">
+         <div style="text-align: center;">
+              <p id="text_result"></p>
+         </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="modal" id="settings_modal" tabindex="-1" role="dialog" style="z-index: 3;">
+  <div class="modal-dialog" role="document" style="top: 5%;">
+    <div class="modal-content modal-switch">
+      <div class="modal-header">
+        <h5 class="modal-title" id="error-title">Settings<i class="bi bi-gear"></i></h5>
+        <button class="modal_close" type="button" class="close" data-dismiss="modal" aria-label="Close">
+             <i class="bi bi-x-octagon"></i>
+        </button>
+      </div>
+      <div class="modal-body" style="height: 150px; overflow: hidden;">
+         <div style="text-align: center;">
+              <p id="text_result"></p>
+         </div>
+         <div class="d-flex" style="justify-content: center;">
+           <p class="switch-mode-text">Switch Mode</p> 
+           <label class="switch">
+             <input id="switch-input" type="checkbox" onclick="switchmode()" style="border: none; background: rgb(168, 168, 168); border-radius: 10px;">
+             <span class="slider"></span>
+            </label>
+          </div>
+          <div id="slippage-div"><p id="slippage-text"><small> Slippage:</small></p><span id="gas_estimate"></span><input id="slippage-input" type="number" placeholder="Slippage Tolerance %" value="0.5"></div>
+        </div>
+    </div>
+  </div>
+</div>

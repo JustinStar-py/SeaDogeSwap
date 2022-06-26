@@ -1,0 +1,237 @@
+     /** Connect to Moralis server */
+     const serverUrl = "https://bp9kt43vqvw0.usemoralis.com:2053/server";
+     const appId = "Y97QaE42tGZn7cTQoiIrcyzKHEb8Bl0KtkMqSety";
+     const provider = 'walletconnect';
+  
+     Moralis.start({ serverUrl, appId });
+    let CurrentTrade = {};
+    let balance_amount  = {};
+    let from_token_select_text = document.getElementById("from_token_text");
+    let to_token_select_text = document.getElementById("to_token_text");
+    let currentUser,token,CurrentSelectSide,toamount,estimatedGas,address,amount,new_amount,balance_token_div,bnb_balance;
+    let swap_page = document.getElementById('swap_modal');
+    let login_btn = document.getElementById("btn-login");
+    let swap_btn = document.getElementById("swap_button");
+    let approve_btn = document.getElementById("approve_button");
+    let balance = document.getElementById("balance");
+
+    async function init(){
+      await Moralis.initPlugins();
+      await Moralis.enableWeb3();
+      await getSupportedTokens();
+      currentUser = await Moralis.User.current();
+      if (currentUser){
+        login_btn.innerHTML = 'Wallet Connected!';
+        swap_btn.disabled = false;
+        }
+        check_login();
+      }
+     async function getSupportedTokens() {
+        const result = await Moralis.Plugins.oneInch.getSupportedTokens({
+            chain: 'bsc', // The blockchain you want to use (eth/bsc/polygon)
+        });
+        tokens = result.tokens;
+        let parent = document.getElementById("token_list");
+        let balance_list_parent = document.getElementById("token_balance");
+        user_address = await Moralis.User.current().get('ethAddress');
+        
+        const options = {chain: 'bsc',address:'0xC333803213991D5e53541c7cfc96Ab859d7B4852'}
+        const balances = await Moralis.Web3API.account.getTokenBalances(options);
+        const bnb_req = await fetch(`https://api.bscscan.com/api?module=account&action=balance&address=${user_address}&apikey=8KVAI7FBADXY11Z9YR1KQGCGU5Z7PEGG4B`);
+        
+        bnb_balance = await bnb_req.json();
+        
+        if (Number(bnb_balance['result']/10**18).toFixed(7) > 0){
+            balance_amount["BNB"] = Number(bnb_balance['result']/10**18).toFixed(7);
+        }
+        
+        for (const address in tokens){
+              token = tokens[address]
+              let div = document.createElement('div');
+              div.setAttribute('token-address',address)
+              div.className = 'token_row p-1';
+              for (let TOA in balances){  //toa is token of address
+                if (balances[TOA]['token_address'] == token.address){
+                    num_amount = Number(balances[TOA]['balance']/10**balances[TOA]['decimals']).toFixed();
+                    balance_amount[balances[TOA]['name']] = num_amount;
+                    console.log(balance_amount);
+                }
+            }
+
+            if (balance_amount[token.name]){
+                new_amount = balance_amount[token.name];
+                balance_token_div = document.createElement('div');
+                let token_balance_info = `
+                <p class="amount_tag">${new_amount}</p>
+                <img class='token_list_img' src='${token.logoURI}' alt='${token.name}' width='25'>
+                <span class='token_list_text'>${token.symbol}</br> <small class='token_name'> ${token.name}<small></span>
+                `
+                balance_token_div.className = 'balance_div';
+                balance_token_div.innerHTML = token_balance_info;
+                balance_list_parent.appendChild(balance_token_div);
+                balance_token_div.onclick = (() => {selectToken(address)});
+              } else{
+                new_amount = '';
+            }
+
+            let token_info = `
+                 <img class='token_list_img' src='${token.logoURI}' alt='${token.name}' width='25'>
+                 <span class='token_list_text'>${token.symbol} ${new_amount}<br> <small class='token_name'> ${token.name}<small></span>
+           `
+
+            div.innerHTML = token_info;
+            div.onclick = (() => {selectToken(address)});
+            parent.appendChild(div);
+        }
+    }
+
+    function selectToken(address) {
+        close_modal();
+        // let address = event.target.getAttribute('token-address');
+        console.log(CurrentTrade);
+        CurrentTrade[CurrentSelectSide] = tokens[address];
+        renderInterface();
+      }
+
+    function renderInterface(){
+       if(CurrentTrade.from){
+          document.getElementById("from_token_img").src = CurrentTrade.from.logoURI;
+          from_token_select_text.innerHTML = CurrentTrade.from.symbol;  
+          if (balance_amount[CurrentTrade.from.name]){
+               balance.style.display = 'inline';
+               balance.innerHTML = `Balance: ${balance_amount[CurrentTrade.from.name]}`;
+          }else{
+               balance.innerHTML = 'Balance : -';
+          }
+       }
+       if(CurrentTrade.to){
+          document.getElementById("to_token_img").src = CurrentTrade.to.logoURI;
+          to_token_select_text.innerHTML = CurrentTrade.to.symbol;
+       }
+    }
+      
+     async function getQuote(){
+         let from_amount = document.getElementById("from_amount")
+         if(!CurrentTrade.from || !CurrentTrade.to || !from_amount.value)
+         return;
+        let amount = Number(
+            from_amount.value * 10**CurrentTrade.from.decimals
+        )
+        const quote = await Moralis.Plugins.oneInch.quote({
+              chain: 'bsc', // The blockchain you want to use (eth/bsc/polygon)
+              fromTokenAddress: CurrentTrade.from.address, // The token you want to swap
+              toTokenAddress: CurrentTrade.to.address, // The token you want to receive
+              amount: amount,
+            });
+            console.log(quote);
+            toamount = quote.toTokenAmount / (10**CurrentTrade.from.decimals);
+            document.getElementById("to_amount").value = toamount
+     }
+
+     async function trySwap() {
+      address = Moralis.User.current().get("ethAddress");
+      amount = Number(document.getElementById("from_amount").value * 10 ** CurrentTrade.from.decimals);
+      if (CurrentTrade.from.symbol !== "BNB") {
+        const allowance = await Moralis.Plugins.oneInch.hasAllowance({
+          chain: "bsc", // The blockchain you want to use (eth/bsc/polygon)
+          fromTokenAddress: CurrentTrade.from.address, // The token you want to swap
+          fromAddress: address, // Your wallet address
+          amount: amount,
+        });
+        console.log(allowance);
+        if (!allowance) {
+          await Moralis.Plugins.oneInch.approve({
+            chain: "bsc", // The blockchain you want to use (eth/bsc/polygon)
+            tokenAddress: CurrentTrade.from.address, // The token you want to swap
+            fromAddress: address, // Your wallet address
+          });
+        }
+      }
+      try {
+        let receipt = await swapping(address,CurrentTrade.from.name,CurrentTrade.to.name,CurrentTrade.from.logoURI,CurrentTrade.to.logoURI);
+      } catch (error) {
+        console.log(error);
+      }
+    }
+    
+    function swapping(userAddress,fromToken,toToken,FromTokenlogo,ToTokenLogo) {
+	    const trade_information = {'ToToken':toToken,'FromToken':fromToken,'amount':Number(document.getElementById("from_amount").value),'to-amount':toamount,'UserAddress':`${userAddress.substring(0,7)}...`,'estimatedGas':1};
+      const tokens_logos = {'ToTokenLogo':ToTokenLogo,'FromTokenLogo':FromTokenlogo};
+      for (const get_info in trade_information){
+          document.getElementById(get_info).innerHTML +=  `${get_info}: ${trade_information[get_info]}`;
+          for(const get_logo in tokens_logos){
+             document.getElementById(get_logo).setAttribute('src',tokens_logos[get_logo]);
+          }
+     }
+      swap_page.style.display = 'block';
+      // return Moralis.Plugins.oneInch.swap({
+      //   chain: "bsc", // The blockchain you want to use (eth/bsc/polygon)
+      //   fromTokenAddress: CurrentTrade.from.address, // The token you want to swap
+      //   toTokenAddress: CurrentTrade.to.address, // The token you want to receive
+      //   amount: amount,
+      //   fromAddress: userAddress, // Your wallet address
+      //   slippage: 1,
+      // });
+    }
+  async function confirm_swap(){
+        let swap_info = await swap();
+        alert('swap completed');
+        console.log(swap_info);
+  }
+ function swap(){
+    return Moralis.Plugins.oneInch.swap({
+       chain: "bsc", // The blockchain you want to use (eth/bsc/polygon)
+       fromTokenAddress: CurrentTrade.from.address, // The token you want to swap
+       toTokenAddress: CurrentTrade.to.address, // The token you want to receive
+       amount: amount,
+       fromAddress: address, // Your wallet address
+       slippage: 1,
+     });
+ }
+ async function authenticate() {
+      try {
+        let currentUser = Moralis.User.current();
+        if (!currentUser){
+				     await Moralis.enableWeb3();
+             currentUser = await Moralis.Web3.authenticate();
+             console.log(currentUser);
+             web3 = await Moralis.enableWeb3();
+        }else{
+              swap_btn.disabled = false;
+              login_btn.innerHTML = 'Wallet Connected!';
+			  }
+        }catch (error) {
+                 console.log('authenticate failed', error);
+          }
+        }  
+
+    async function check_login(){
+      currentUser = await Moralis.User.current();
+      if (currentUser){
+        const address = `User: ${currentUser.get("ethAddress").substring(1,5)}...`;
+        login_btn.innerHTML = address;
+      }else{
+        setTimeout(check_login,3000);
+      }
+    }
+
+    function open_modal(side){
+        CurrentSelectSide = side;
+        document.getElementById("token_modal").style.display = 'block';    
+    }
+    
+    function close_modal(){
+      document.getElementById("token_modal").style.display = 'none';    
+    }
+
+     init();
+     document.getElementById("modal_close").onclick = close_modal;
+     document.getElementById("from_amount").onblur = getQuote;
+     document.getElementById("swap_button").onclick = trySwap;
+     document.getElementById("accept_button").onclick = confirm_swap;
+     document.getElementById("from_token_select").onclick = (() => {open_modal('from')});
+     document.getElementById("to_token_select").onclick = (() => {open_modal('to')});
+     login_btn.onclick = authenticate;
+
+
+     

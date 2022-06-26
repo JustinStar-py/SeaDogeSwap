@@ -1,0 +1,14 @@
+{% load static %}
+<nav class="navbar navbar-expand-lg navbar-light fixed-top modal-switch" style="z-index: 1;">
+  <div class="container-fluid">
+    <a class="navbar-brand navbar-text" href="{% url 'home' %}"><img id="logo" src="{% static 'img/sd-logo.png' %}" width="35" alt="Logo"><small id="son-text" style="padding: 5px; font-size: 13px;">$SeaDoge</small></a>
+    <div id="navbarNav">
+      <ul class="navbar-nav">
+        <li id="user-item" class="nav-item">
+          <button id="btn-login" type="submit">Connect Wallet</button>
+          <img id="wallet-logo" src="https://cdn3d.iconscout.com/3d/premium/thumb/wallet-3597245-3010225.png" width="45" alt="Wallet">
+        </li>
+      </ul>
+    </div>
+  </div>
+</nav>

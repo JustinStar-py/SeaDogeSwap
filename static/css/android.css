@@ -1,0 +1,108 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat+Alternates:wght@500&family=Passion+One&family=Aclonica&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Aclonica&display=swap');
+
+*{
+    font-family: 'Montserrat Alternates', sans-serif;
+}
+@font-face {
+    font-family: "BALLSONTHERAMPAGE";
+    src: url("/static/fonts/BALLSONTHERAMPAGE.ttf");
+}
+body{
+    background:url('/static/img/bg-org-4.webp');
+    /* background-color: currentColor; */
+    background-size: cover;
+    background-attachment: fixed;
+}
+.title-box{
+    font-family: 'Aclonica', sans-serif;
+}
+#gifts-logo{
+    width: 120px !important;
+}
+#container-3 {
+    text-align: center;
+}
+#mid-text-node {
+    color: #efefef;
+    font-family: "BALLSONTHERAMPAGE";
+    width: fit-content;
+    padding: 20px 60px;
+    border-radius: 35px;
+    border: 8px solid #f121f0;
+    backdrop-filter: blur(4px);
+    background: #0000006e;
+    position: relative;
+    top: 50px;
+    font-weight: 20;
+    box-shadow: 0 0 10px #ff42f8;
+    font-size: 70px;
+    text-align: -webkit-center;
+    text-shadow: 3px 5px 0px #ff1c1c;
+    /* animation: mid-text-color 5s infinite; */
+}
+#org-container{
+    width: auto;
+}
+@media only screen and (max-width: 600px) {
+    body{
+        background:url('/static/img/bg-org-4.webp');
+        background-size: cover;
+        background-attachment: fixed;
+    }
+   #slippage-div {
+       display: flex;
+       vertical-align: -webkit-baseline-middle;
+   }
+   #slippage-input {
+       border: 1px solid;
+       background-color: rgb(247, 247, 247);
+       border-radius: 15px;
+       padding: 5px;
+       width: 70%;
+       box-shadow: 3px 3px #8c8c8c;
+   }
+   #slippage-text small{
+       vertical-align: -webkit-baseline-middle;
+   }
+   
+   #btn-login{
+        font-size: small;
+    }
+    #gifts-logo{
+        width: 110px !important;
+    }
+    #mid-text-node {
+        color: #efefef;
+        width: fit-content !important;
+        padding: 25px 20px;
+        width: initial;
+        border-radius: 30px;
+        border: 8px solid #f121f0;
+        box-shadow: 0 0 10px #ff42f8;
+        backdrop-filter: blur(4px);
+        background: #0000006e;
+        position: relative;
+        top: 50px;
+        font-weight: 100;
+        font-size: 55px;
+        text-align: -webkit-center;
+        text-shadow: 3px 5px 0px #ff1c1c;
+        font-family: "BALLSONTHERAMPAGE";
+        /* animation: mid-text-color 5s infinite; */
+    }
+    #org-container{
+        width: fit-content;
+    }
+    .container-fluid {
+        padding: 0px 5px 0px 5px;
+    }
+    #container-3 {
+        text-align: center;
+        display: block;
+        width: auto;
+    }
+}
+@media only screen and (min-width:601px) {
+  
+}

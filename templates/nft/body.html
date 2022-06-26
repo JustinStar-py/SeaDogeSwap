@@ -1,0 +1,14 @@
+<div class="container">
+    <div class="row px-3">
+        {% for nft in NFTs %}
+        <div class="card" style="width: 18rem;">
+            <img class="card-img-top" src="{{nft.nft_image.url}}" alt="{{nft.nft_name}}">
+            <div class="card-body">
+              <h5 class="card-title">Name: {{nft.nft_name}}</h5>
+              <p class="card-text">designer: {{nft.designer_name}}</p>
+              <a href="#" class="btn btn-primary">Check details!</a>
+            </div>
+          </div>
+          {% endfor %}
+       </div>
+</div>
